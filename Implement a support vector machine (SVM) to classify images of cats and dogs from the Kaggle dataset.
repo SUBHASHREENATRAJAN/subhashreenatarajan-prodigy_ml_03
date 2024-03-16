@@ -1,0 +1,38 @@
+import os
+import cv2
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# Function to load images and labels
+def load_data(data_dir):
+    images = []
+    labels = []
+    for label, category in enumerate(['cat', 'dog']):
+        category_dir = os.path.join(data_dir, category)
+        for filename in os.listdir(category_dir):
+            image_path = os.path.join(category_dir, filename)
+            image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+            image = cv2.resize(image, (100, 100))  # Resize images to 100x100
+            images.append(image.flatten())  # Flatten image into feature vector
+            labels.append(label)
+    return np.array(images), np.array(labels)
+
+# Load data
+data_dir = 'path_to_your_dataset_directory'
+images, labels = load_data(data_dir)
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=42)
+
+# Train SVM model
+svm = SVC(kernel='linear')  # Linear kernel for simplicity
+svm.fit(X_train, y_train)
+
+# Predictions
+y_pred = svm.predict(X_test)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
